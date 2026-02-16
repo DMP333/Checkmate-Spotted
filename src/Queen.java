@@ -7,7 +7,8 @@ public class Queen extends  Piece{
         super(currentX, currentY, 5, color, name, "Queen");
     }
 
-    public boolean isMoveValid(int destinationX, int destinationY) {
+    @Override
+    public MoveResult isMoveValid(int destinationX, int destinationY) {
         gameBoard = Board.getGameBoard();
 
         Piece [][] originalBoard = new Piece[8][8];
@@ -27,7 +28,7 @@ public class Queen extends  Piece{
 
         if (destinationX < 0 || destinationX >= 8 || destinationY < 0 || destinationY >= 8 ||
             (destinationX == getCurrentX() && destinationY == getCurrentY())) {
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (destinationX == getCurrentX() || destinationY == getCurrentY()) {
@@ -36,7 +37,7 @@ public class Queen extends  Piece{
             destinationX - destinationY == super.getCurrentX() - super.getCurrentY()) {
             moveDiagonal = true;
         } else {
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (moveStraight) {
@@ -44,13 +45,13 @@ public class Queen extends  Piece{
                 if (xChange > 0) { //Piece move right
                     for (int i = super.getCurrentX(); i < destinationX; i++) {
                         if (gameBoard[i][super.getCurrentY()] != null) {
-                            return false;
+                            return MoveResult.INVALID;
                         }
                     }
                 } else { //Piece move left
                     for (int i = super.getCurrentX(); i > destinationX; i--) {
                         if (gameBoard[i][super.getCurrentY()] != null) {
-                            return false;
+                            return MoveResult.INVALID;
                         }
                     }
                 }
@@ -58,13 +59,13 @@ public class Queen extends  Piece{
                 if (yChange > 0) { //Piece move up
                     for (int i = super.getCurrentY(); i < destinationY; i++) {
                         if (gameBoard[i][super.getCurrentY()] != null) {
-                            return false;
+                            return MoveResult.INVALID;
                         }
                     }
                 } else { //Piece move down
                     for (int i = super.getCurrentY(); i > destinationY; i--) {
                         if (gameBoard[i][super.getCurrentY()] != null) {
-                            return false;
+                            return MoveResult.INVALID;
                         }
                     }
                 }
@@ -75,25 +76,25 @@ public class Queen extends  Piece{
             if (xChange > 0 && yChange > 0 ) { //moving left-up
                 for (int i = 1; i < absoluteChange; i++) {
                     if (gameBoard[super.getCurrentX() - i][super.getCurrentY() - i] != null) {
-                        return false;
+                        return MoveResult.INVALID;
                     }
                 }
             } else if (xChange < 0 && yChange < 0) { //Moving down right
                 for (int i = 1; i < absoluteChange; i++) {
                     if (gameBoard[super.getCurrentX() + i][super.getCurrentY() + i] != null) {
-                        return false;
+                        return MoveResult.INVALID;
                     }
                 }
             } else if (xChange > 0 && yChange < 0) { //Moving down left
                 for (int i = 1; i < absoluteChange; i++) {
                     if (gameBoard[super.getCurrentX() - i][super.getCurrentY() + i] != null) {
-                        return false;
+                        return MoveResult.INVALID;
                     }
                 }
             } else { //Moving right up
                 for (int i = 1; i < absoluteChange; i++) {
                     if (gameBoard[super.getCurrentX() + i][super.getCurrentY() - i] != null) {
-                        return false;
+                        return MoveResult.INVALID;
                     }
                 }
             }
@@ -101,7 +102,7 @@ public class Queen extends  Piece{
 
         if (gameBoard[destinationX][destinationY] != null) {
             if (gameBoard[destinationX][destinationY].getColor().equals(super.getColor())) { //Trying to capture same team
-                return false;
+                return MoveResult.INVALID;
             } else {
                 if (!checkingStalemateOrCheckmate) {
                     super.getCaptured(destinationX, destinationY); // Capture the piece
@@ -116,7 +117,7 @@ public class Queen extends  Piece{
 
         if (super.getSameColorKing(super.getColor()).inInCheck()) {
             Board.setGameBoard(originalBoard);
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (!checkingStalemateOrCheckmate) {
@@ -126,7 +127,7 @@ public class Queen extends  Piece{
             Board.setGameBoard(originalBoard);
         }
 
-        return true;
+        return MoveResult.NORMAL;
     }
 
 }

@@ -10,31 +10,32 @@ public class Rook extends Piece{
         this.gameBoard = Board.getGameBoard();
     }
 
-    public boolean isMoveValid(int destinationX, int destinationY) { //right now, this also moves the pieces
+    @Override
+    public MoveResult isMoveValid(int destinationX, int destinationY) { //right now, this also moves the pieces
        gameBoard = Board.getGameBoard();
         int xChange = super.getCurrentX() - destinationX;
         int yChange = super.getCurrentY() - destinationY;
         boolean checkingStalemateOrCheckmate = Board.isCheckingStalemateOrCheckmate();
 
         if (xChange != 0 && yChange != 0) { // Piece moved diagonally
-            return false;
+            return MoveResult.INVALID;
         } else if (xChange == 0 && yChange == 0) { // Piece didn't move
-            return false;
+            return MoveResult.INVALID;
         } else if (destinationX < 0 || destinationX > 7 || destinationY < 0 || destinationY > 7) { // Piece moved out of board
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (xChange != 0) { //X Change
             if (xChange > 0) { //Piece move right
                 for (int i = super.getCurrentX(); i < destinationX; i++) {
                     if (gameBoard[i][super.getCurrentY()] != null) {
-                        return false;
+                        return MoveResult.INVALID;
                     }
                 }
             } else { //Piece move left
                 for (int i = super.getCurrentX(); i > destinationX; i--) {
                     if (gameBoard[i][super.getCurrentY()] != null) {
-                        return false;
+                        return MoveResult.INVALID;
                     }
                 }
             }
@@ -42,13 +43,13 @@ public class Rook extends Piece{
             if (yChange > 0) { //Piece move up
                 for (int i = super.getCurrentY(); i < destinationY; i++) {
                     if (gameBoard[i][super.getCurrentY()] != null) {
-                        return false;
+                        return MoveResult.INVALID;
                     }
                 }
             } else { //Piece move down
                 for (int i = super.getCurrentY(); i > destinationY; i--) {
                     if (gameBoard[i][super.getCurrentY()] != null) {
-                        return false;
+                        return MoveResult.INVALID;
                     }
                 }
             }
@@ -65,7 +66,7 @@ public class Rook extends Piece{
 
         if (gameBoard[destinationX][destinationY] != null) {
             if (gameBoard[destinationX][destinationY].getColor().equals(super.getColor())) { //Trying to capture same team
-                return false;
+                return MoveResult.INVALID;
             } else {
                 if (!checkingStalemateOrCheckmate) {
                     super.getCaptured(destinationX, destinationY); // Capture the piece
@@ -80,7 +81,7 @@ public class Rook extends Piece{
 
         if (super.getSameColorKing(super.getColor()).inInCheck()) {
             Board.setGameBoard(originalBoard);
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (!checkingStalemateOrCheckmate) {
@@ -91,7 +92,7 @@ public class Rook extends Piece{
             Board.setGameBoard(originalBoard);
         }
 
-        return true;
+        return MoveResult.NORMAL;
     }
 
     public boolean isMovedFromOriginalPosition() {

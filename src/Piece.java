@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class Piece {
+public abstract class Piece {
     private int currentX;
     private int currentY;
     private int point;
@@ -41,10 +41,6 @@ public class Piece {
     public void getCaptured(int destinationX, int destinationY) {
         gameBoard = Board.getGameBoard();
         gameBoard[destinationX][destinationY] = null;
-
-
-
-
         Board.setGameBoard(gameBoard);
     }
 
@@ -75,6 +71,8 @@ public class Piece {
         }
         return null; // This statement should never be reached
     }
+
+    public abstract MoveResult isMoveValid(int destinationX, int destinationY);
 
     public void setCurrentX(int currentX) {
         this.currentX = currentX;

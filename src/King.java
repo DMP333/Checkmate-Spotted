@@ -13,12 +13,13 @@ public class King extends Piece{
         kingMoved = false;
     }
 
-    public int isMoveValid(int destinationX, int destinationY) {
+    @Override
+    public MoveResult isMoveValid(int destinationX, int destinationY) {
         gameBoard = Board.getGameBoard();
         Piece [][] originalBoard = new Piece[8][8];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                   originalBoard[i][j] = gameBoard[i][j];
+                originalBoard[i][j] = gameBoard[i][j];
             }
         }
 
@@ -31,8 +32,8 @@ public class King extends Piece{
         boolean tryingToCastle = false;
         boolean checkingStalemateOrCheckmate = Board.isCheckingStalemateOrCheckmate();
 
-        if (destinationX < 0 || destinationX > 7 || destinationY < 0 || destinationY > 7) { // Piece moved out of board
-            return -1;
+        if (destinationX < 0 || destinationX > 7 || destinationY < 0 || destinationY > 7) {
+            return MoveResult.INVALID;
         }
 
         for (int i = destinationX-1; i < destinationX +1; i++) {
@@ -40,7 +41,7 @@ public class King extends Piece{
                 if (i >= 0 && i < 8 && j >= 0 && j < 8) {
                     if (gameBoard[i][j] != null) {
                         if (gameBoard [i][j] instanceof King && !gameBoard [i][j].getColor().equals(super.getColor())) {
-                            return -1;
+                            return MoveResult.INVALID;
                         }
                     }
                 }
@@ -48,16 +49,16 @@ public class King extends Piece{
         }
 
         if (destinationX == super.getCurrentX() && destinationY == super.getCurrentY()) {
-            return -1;
+            return MoveResult.INVALID;
         }
 
         if (!kingMoved) {
             if ((getCurrentY() == 0 || getCurrentY() == 7) && (xChange == 2 || xChange == -2)) {
                 tryingToCastle = true;
-                if (xChange > 0) { // Castling kingSide
+                if (xChange > 0) {
                     for (int i = super.getCurrentX()+1; i < 7; i++) {
                         if (gameBoard[i][getCurrentY()] != null) {
-                            return -1;
+                            return MoveResult.INVALID;
                         } else {
                             gameBoard[getCurrentX()][getCurrentY()] = null;
                             gameBoard[i][getCurrentY()] = this;
@@ -68,7 +69,7 @@ public class King extends Piece{
                                 Board.setGameBoard(originalBoard);
                                 super.setCurrentX(originalX);
                                 super.setCurrentY(originalY);
-                                return -1;
+                                return MoveResult.INVALID;
                             } else if (checkingStalemateOrCheckmate) {
                                 super.setCurrentX(originalX);
                                 super.setCurrentY(originalY);
@@ -79,7 +80,7 @@ public class King extends Piece{
                     if (gameBoard[7][getCurrentY()] != null && gameBoard[7][getCurrentY()] instanceof Rook) {
                         Rook tempRook = (Rook) gameBoard[7][getCurrentY()];
                         if (tempRook.isMovedFromOriginalPosition()) {
-                            return -1;
+                            return MoveResult.INVALID;
                         } else {
                             gameBoard[6][getCurrentY()] = this;
                             gameBoard[5][getCurrentY()] = gameBoard[7][getCurrentY()];
@@ -87,16 +88,16 @@ public class King extends Piece{
                             gameBoard[4][getCurrentY()] = null;
                             ((Rook) (gameBoard[5][getCurrentY()])).movedFromOriginalPosition = true;
                             kingMoved = true;
-                            return 1;
+                            return MoveResult.CASTLE;
                         }
                     } else {
-                        return  -1;
+                        return MoveResult.INVALID;
                     }
 
-                } else { // Castling Queen side
+                } else {
                     for (int i = super.getCurrentX()-1; i > 1; i--) {
                         if (gameBoard[i][getCurrentY()] != null) {
-                            return -1;
+                            return MoveResult.INVALID;
                         } else {
                             gameBoard[getCurrentX()][getCurrentY()] = null;
                             gameBoard[i][getCurrentY()] = this;
@@ -107,7 +108,7 @@ public class King extends Piece{
                                 Board.setGameBoard(originalBoard);
                                 super.setCurrentX(originalX);
                                 super.setCurrentY(originalY);
-                                return -1;
+                                return MoveResult.INVALID;
                             } else if (checkingStalemateOrCheckmate) {
                                 super.setCurrentX(originalX);
                                 super.setCurrentY(originalY);
@@ -118,7 +119,7 @@ public class King extends Piece{
                     if (gameBoard[0][getCurrentY()] != null && gameBoard[0][getCurrentY()] instanceof Rook) {
                         Rook tempRook = (Rook) gameBoard[0][getCurrentY()];
                         if (tempRook.isMovedFromOriginalPosition()) {
-                            return -1;
+                            return MoveResult.INVALID;
                         } else {
                             gameBoard[2][getCurrentY()] = this;
                             gameBoard[3][getCurrentY()] = gameBoard[7][getCurrentY()];
@@ -126,10 +127,10 @@ public class King extends Piece{
                             gameBoard[4][getCurrentY()] = null;
                             ((Rook) (gameBoard[3][getCurrentY()])).movedFromOriginalPosition = true;
                             kingMoved = true;
-                            return 1;
+                            return MoveResult.CASTLE;
                         }
                     } else {
-                        return -1;
+                        return MoveResult.INVALID;
                     }
                 }
 
@@ -137,15 +138,15 @@ public class King extends Piece{
         }
 
         if (Math.abs(xChange) > 1 || Math.abs(yChange) > 1) {
-            return -1;
+            return MoveResult.INVALID;
         }
 
         if (gameBoard[destinationX][destinationY] != null) {
             if (gameBoard[destinationX][destinationY].getColor().equals(super.getColor())) {
-                return -1;
+                return MoveResult.INVALID;
             }
             if (!checkingStalemateOrCheckmate) {
-                super.getCaptured(destinationX, destinationY); // Capture the piece
+                super.getCaptured(destinationX, destinationY);
             }
         }
         gameBoard[getCurrentX()][getCurrentY()] = null;
@@ -158,7 +159,7 @@ public class King extends Piece{
             Board.setGameBoard(originalBoard);
             super.setCurrentX(originalX);
             super.setCurrentY(originalY);
-            return -1;
+            return MoveResult.INVALID;
         } else if (checkingStalemateOrCheckmate) {
             super.setCurrentX(originalX);
             super.setCurrentY(originalY);
@@ -171,16 +172,15 @@ public class King extends Piece{
         } else {
             Board.setGameBoard(originalBoard);
         }
-        return 0;
+        return MoveResult.NORMAL;
     }
 
 
-    public boolean inInCheck() { //returns true if they are in the check
+    public boolean inInCheck() {
         gameBoard = Board.getGameBoard();
         pieceAttackingCount = 0;
         pieceAttacking = null;
 
-        //Checking knight's presence, 걍 루프없이 체크하는것이 정신겅강에 좋겠다
         int [][] knightMove = {{-1,2}, {-2, -1}, {1,2}, {2,1}, {-1, -2}, {-2, 1}, {1, -2}, {2,-1}};
         for (int i = 0; i < 8; i++) {
             if (super.getCurrentX() + knightMove[i][0] < 8 && super.getCurrentX() + knightMove[i][0] >=0
@@ -194,7 +194,7 @@ public class King extends Piece{
             }
         }
 
-        for (int i = getCurrentX() + 1; i < 8; i++) { // Checking right of the king
+        for (int i = getCurrentX() + 1; i < 8; i++) {
             if (gameBoard[i][super.getCurrentY()] != null) {
                 if (!gameBoard[i][super.getCurrentY()].getColor().equals(super.getColor())) {
                     if (gameBoard[i][super.getCurrentY()] instanceof Rook || gameBoard[i][super.getCurrentY()] instanceof Queen) {
@@ -209,7 +209,7 @@ public class King extends Piece{
             }
         }
 
-        for (int i = super.getCurrentX()-1; i >=0; i--) { // Checking left of the king
+        for (int i = super.getCurrentX()-1; i >=0; i--) {
             if (gameBoard[i][super.getCurrentY()] != null) {
                 if (!gameBoard[i][super.getCurrentY()].getColor().equals(super.getColor())) {
                     if (gameBoard[i][super.getCurrentY()] instanceof Rook || gameBoard[i][super.getCurrentY()] instanceof Queen) {
@@ -224,7 +224,7 @@ public class King extends Piece{
             }
         }
 
-        for (int i = getCurrentY() + 1; i < 8; i++) { // Checking above the king
+        for (int i = getCurrentY() + 1; i < 8; i++) {
             if (gameBoard[super.getCurrentX()][i] != null) {
                 if (!gameBoard[super.getCurrentX()][i].getColor().equals(super.getColor())) {
                     if (gameBoard[super.getCurrentX()][i] instanceof Rook || gameBoard[super.getCurrentX()][i] instanceof Queen) {
@@ -239,7 +239,7 @@ public class King extends Piece{
             }
         }
 
-        for (int i = getCurrentY() -1; i >= 0; i--) { // Checking below the king
+        for (int i = getCurrentY() -1; i >= 0; i--) {
             if (gameBoard[super.getCurrentX()][i] != null) {
                 if (!gameBoard[super.getCurrentX()][i].getColor().equals(super.getColor())) {
                     if (gameBoard[super.getCurrentX()][i] instanceof Rook || gameBoard[super.getCurrentX()][i] instanceof Queen) {
@@ -304,7 +304,7 @@ public class King extends Piece{
         }
     }
 
-    public boolean isInCheckmate() { // return true if it is in checkmate// only call if piece is in check
+    public boolean isInCheckmate() {
         gameBoard = Board.getGameBoard();
 
         Piece [][] originalBoard = new Piece[8][8];
@@ -320,7 +320,7 @@ public class King extends Piece{
 
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <=1; j++) {
-                if (isMoveValid(getCurrentX() + i, getCurrentY() + j) == 0) {
+                if (isMoveValid(getCurrentX() + i, getCurrentY() + j) == MoveResult.NORMAL) {
                     Board.setGameBoard(originalBoard);
                     Board.setCheckingStalemateOrCheckmate(false);
                     return false;
@@ -338,31 +338,31 @@ public class King extends Piece{
             for (int j = 0; j < 8; j++) {
                 if (gameBoard[i][j] != null && gameBoard[i][j].getColor().equals(super.getColor()) && !(gameBoard[i][j] instanceof King)) {
                     if (gameBoard[i][j] instanceof Pawn) {
-                        if (((Pawn)(gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY()) == 0){
+                        if (((Pawn)(gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY()) == MoveResult.NORMAL){
                             Board.setGameBoard(originalBoard);
                             Board.setCheckingStalemateOrCheckmate(false);
                             return false;
                         }
                     } else if (gameBoard[i][j] instanceof Rook) {
-                        if (((Rook)(gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY())){
+                        if (((Rook)(gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY()) != MoveResult.INVALID){
                             Board.setGameBoard(originalBoard);
                             Board.setCheckingStalemateOrCheckmate(false);
                             return false;
                         }
                     } else if (gameBoard[i][j] instanceof Knight) {
-                        if (((Knight)(gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY())){
+                        if (((Knight)(gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY()) != MoveResult.INVALID){
                             Board.setGameBoard(originalBoard);
                             Board.setCheckingStalemateOrCheckmate(false);
                             return false;
                         }
                     } else if (gameBoard[i][j] instanceof Bishop) {
-                        if (((Bishop) (gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY())) {
+                        if (((Bishop) (gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY()) != MoveResult.INVALID) {
                             Board.setGameBoard(originalBoard);
                             Board.setCheckingStalemateOrCheckmate(false);
                             return false;
                         }
                     } else if (gameBoard[i][j] instanceof Queen) {
-                        if (((Queen)(gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY())) {
+                        if (((Queen)(gameBoard[i][j])).isMoveValid(pieceAttacking.getCurrentX(), pieceAttacking.getCurrentY()) != MoveResult.INVALID) {
                             Board.setGameBoard(originalBoard);
                             Board.setCheckingStalemateOrCheckmate(false);
                             return false;
@@ -376,7 +376,7 @@ public class King extends Piece{
         return true;
     }
 
-    public boolean isStalemate() { // If white King calls this class, it determines stalemate from white's perspective
+    public boolean isStalemate() {
         Board.setCheckingStalemateOrCheckmate(true);
         gameBoard = Board.getGameBoard();
 
@@ -391,31 +391,31 @@ public class King extends Piece{
             for (int j = 0; j < 8; j++) {
                 if (gameBoard[i][j] != null && gameBoard[i][j].getColor().equals(super.getColor())) {
                     if (gameBoard[i][j] instanceof Pawn) {
-                       if (super.getColor().equals("Black")) {
-                           if (((Pawn)(gameBoard[i][j])).isMoveValid(i + 1, j) != -1 ||
-                               ((Pawn)(gameBoard[i][j])).isMoveValid(i + 2, j) != -1 ||
-                               ((Pawn)(gameBoard[i][j])).isMoveValid(i + 1, j + 1) != -1 ||
-                               ((Pawn)(gameBoard[i][j])).isMoveValid(i + 1, j - 1) != -1) {
-                               Board.setGameBoard(originalBoard);
-                               Board.setCheckingStalemateOrCheckmate(false);
-                               return false;
-                           }
-                       } else {
-                           if (((Pawn)(gameBoard[i][j])).isMoveValid(i - 1, j) != -1 ||
-                               ((Pawn)(gameBoard[i][j])).isMoveValid(i - 2, j) != -1 ||
-                               ((Pawn)(gameBoard[i][j])).isMoveValid(i - 1, j + 1) != -1 ||
-                               ((Pawn)(gameBoard[i][j])).isMoveValid(i - 1, j - 1) != -1) {
-                               Board.setGameBoard(originalBoard);
-                               Board.setCheckingStalemateOrCheckmate(false);
-                               return false;
-                           }
-                       }
+                        if (super.getColor().equals("Black")) {
+                            if (((Pawn)(gameBoard[i][j])).isMoveValid(i + 1, j) != MoveResult.INVALID ||
+                                ((Pawn)(gameBoard[i][j])).isMoveValid(i + 2, j) != MoveResult.INVALID ||
+                                ((Pawn)(gameBoard[i][j])).isMoveValid(i + 1, j + 1) != MoveResult.INVALID ||
+                                ((Pawn)(gameBoard[i][j])).isMoveValid(i + 1, j - 1) != MoveResult.INVALID) {
+                                Board.setGameBoard(originalBoard);
+                                Board.setCheckingStalemateOrCheckmate(false);
+                                return false;
+                            }
+                        } else {
+                            if (((Pawn)(gameBoard[i][j])).isMoveValid(i - 1, j) != MoveResult.INVALID ||
+                                ((Pawn)(gameBoard[i][j])).isMoveValid(i - 2, j) != MoveResult.INVALID ||
+                                ((Pawn)(gameBoard[i][j])).isMoveValid(i - 1, j + 1) != MoveResult.INVALID ||
+                                ((Pawn)(gameBoard[i][j])).isMoveValid(i - 1, j - 1) != MoveResult.INVALID) {
+                                Board.setGameBoard(originalBoard);
+                                Board.setCheckingStalemateOrCheckmate(false);
+                                return false;
+                            }
+                        }
                     } else if (gameBoard[i][j] instanceof Rook) {
                         for (int k = 1; k <= 7; k++) {
-                            if (((Rook)(gameBoard[i][j])).isMoveValid(i - k, j) ||
-                                ((Rook)(gameBoard[i][j])).isMoveValid(i + k, j) ||
-                                ((Rook)(gameBoard[i][j])).isMoveValid(i, j + k) ||
-                                ((Rook)(gameBoard[i][j])).isMoveValid(i, j - k)) {
+                            if (((Rook)(gameBoard[i][j])).isMoveValid(i - k, j) != MoveResult.INVALID ||
+                                ((Rook)(gameBoard[i][j])).isMoveValid(i + k, j) != MoveResult.INVALID ||
+                                ((Rook)(gameBoard[i][j])).isMoveValid(i, j + k) != MoveResult.INVALID ||
+                                ((Rook)(gameBoard[i][j])).isMoveValid(i, j - k) != MoveResult.INVALID) {
                                 Board.setGameBoard(originalBoard);
                                 Board.setCheckingStalemateOrCheckmate(false);
                                 return false;
@@ -424,7 +424,7 @@ public class King extends Piece{
                     } else if (gameBoard[i][j] instanceof Knight) {
                         int [][] knightMove = {{-1,2}, {-2, -1}, {1,2}, {2,1}, {-1, -2}, {-2, -1}, {1, -2}, {2,-1}};
                         for (int k = 0; k < 8; k++) {
-                            if (((Knight)(gameBoard[i][j])).isMoveValid(i + knightMove[k][0], j + knightMove[k][1])) {
+                            if (((Knight)(gameBoard[i][j])).isMoveValid(i + knightMove[k][0], j + knightMove[k][1]) != MoveResult.INVALID) {
                                 Board.setGameBoard(originalBoard);
                                 Board.setCheckingStalemateOrCheckmate(false);
                                 return false;
@@ -434,7 +434,7 @@ public class King extends Piece{
                         int [][] diagonalChecker = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
                         for (int k = 1; k <= 4; k++) {
                             for (int l = 0; l < 4; l++) {
-                                if (((Bishop)(gameBoard[i][j])).isMoveValid(i + k * diagonalChecker[l][0], j + k * diagonalChecker[l][1])) {
+                                if (((Bishop)(gameBoard[i][j])).isMoveValid(i + k * diagonalChecker[l][0], j + k * diagonalChecker[l][1]) != MoveResult.INVALID) {
                                     Board.setGameBoard(originalBoard);
                                     Board.setCheckingStalemateOrCheckmate(false);
                                     return false;
@@ -443,10 +443,10 @@ public class King extends Piece{
                         }
                     } else if (gameBoard[i][j] instanceof Queen) {
                         for (int k = 1; k <= 7; k++) {
-                            if (((Queen)(gameBoard[i][j])).isMoveValid(i - k, j) ||
-                                ((Queen)(gameBoard[i][j])).isMoveValid(i + k, j) ||
-                                ((Queen)(gameBoard[i][j])).isMoveValid(i, j + k) ||
-                                ((Queen)(gameBoard[i][j])).isMoveValid(i, j - k)) {
+                            if (((Queen)(gameBoard[i][j])).isMoveValid(i - k, j) != MoveResult.INVALID ||
+                                ((Queen)(gameBoard[i][j])).isMoveValid(i + k, j) != MoveResult.INVALID ||
+                                ((Queen)(gameBoard[i][j])).isMoveValid(i, j + k) != MoveResult.INVALID ||
+                                ((Queen)(gameBoard[i][j])).isMoveValid(i, j - k) != MoveResult.INVALID) {
                                 Board.setGameBoard(originalBoard);
                                 Board.setCheckingStalemateOrCheckmate(false);
                                 return false;
@@ -456,7 +456,7 @@ public class King extends Piece{
                         int [][] diagonalChecker = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
                         for (int k = 1; k <= 4; k++) {
                             for (int l = 0; l < 4; l++) {
-                                if (((Queen)(gameBoard[i][j])).isMoveValid(i + k * diagonalChecker[l][0], j + k * diagonalChecker[l][1])) {
+                                if (((Queen)(gameBoard[i][j])).isMoveValid(i + k * diagonalChecker[l][0], j + k * diagonalChecker[l][1]) != MoveResult.INVALID) {
                                     Board.setGameBoard(originalBoard);
                                     Board.setCheckingStalemateOrCheckmate(false);
                                     return false;
@@ -466,7 +466,7 @@ public class King extends Piece{
                     } else if (gameBoard[i][j] instanceof King) {
                         for (int k = -1; k <= 1; k++) {
                             for (int l = -1; l <= 1; l++) {
-                                if (isMoveValid(getCurrentX() + k, getCurrentY() + l) == 0) {
+                                if (isMoveValid(getCurrentX() + k, getCurrentY() + l) == MoveResult.NORMAL) {
                                     Board.setGameBoard(originalBoard);
                                     Board.setCheckingStalemateOrCheckmate(false);
                                     return false;
@@ -481,11 +481,6 @@ public class King extends Piece{
         Board.setCheckingStalemateOrCheckmate(false);
         return true;
     }
-
-
-
-    //Checkmate
-    //Stalemate
 
 
 

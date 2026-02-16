@@ -7,7 +7,8 @@ public class Knight extends Piece{
         super(currentX, currentY, 3, color, name, "Knight");
     }
 
-    public boolean isMoveValid(int destinationX, int destinationY) {
+    @Override
+    public MoveResult isMoveValid(int destinationX, int destinationY) {
         gameBoard = Board.getGameBoard();
         Piece [][] originalBoard = new Piece[8][8];
         for (int i = 0; i < 8; i++) {
@@ -22,7 +23,7 @@ public class Knight extends Piece{
 
 
         if (destinationX < 0 || destinationX > 7 || destinationY < 0 || destinationY > 7) { // Piece moved out of board
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (Math.abs(xChange) != Math.abs(yChange)) {
@@ -34,7 +35,7 @@ public class Knight extends Piece{
                               super.getCaptured(destinationX, destinationY);
                           }
                       } else {
-                          return false;
+                          return MoveResult.INVALID;
                       }
                     }
                     gameBoard[getCurrentX()][getCurrentY()] = null;
@@ -42,7 +43,7 @@ public class Knight extends Piece{
                     Board.setGameBoard(gameBoard);
                     if (super.getSameColorKing(super.getColor()).inInCheck()) {
                         Board.setGameBoard(originalBoard);
-                        return false;
+                        return MoveResult.INVALID;
                     }
                     if (!checkingStalemateOrCheckmate) {
                         super.setCurrentX(destinationX);
@@ -50,15 +51,15 @@ public class Knight extends Piece{
                     } else {
                         Board.setGameBoard(originalBoard);
                     }
-                    return true;
+                    return MoveResult.NORMAL;
                 } else {
-                    return false;
+                    return MoveResult.INVALID;
                 }
             } else {
-                return false;
+                return MoveResult.INVALID;
             }
         } else {
-            return false;
+            return MoveResult.INVALID;
         }
     }
 }

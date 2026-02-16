@@ -8,7 +8,8 @@ public class Bishop extends Piece{
         gameBoard = Board.getGameBoard();
     }
 
-    public boolean isMoveValid(int destinationX, int destinationY) {
+    @Override
+    public MoveResult isMoveValid(int destinationX, int destinationY) {
         gameBoard = Board.getGameBoard();
         int xChange = super.getCurrentX() - destinationX;
         int yChange = super.getCurrentY() - destinationY;
@@ -17,40 +18,40 @@ public class Bishop extends Piece{
 
         // Checking if destination can be reached when no other piece exists
         if (destinationX < 0 || destinationX > 7 || destinationY < 0 || destinationY > 7 ) {
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (destinationX + destinationY != super.getCurrentX() + super.getCurrentY() &&
             destinationX - destinationY != super.getCurrentX() - super.getCurrentY()) {
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (destinationX == super.getCurrentX() || destinationY == super.getCurrentY()) {
-            return false;
+            return MoveResult.INVALID;
         }
 
         if (xChange > 0 && yChange > 0 ) { //moving left-up
             for (int i = 1; i < absoluteChange; i++) {
                 if (gameBoard[super.getCurrentX() - i][super.getCurrentY() - i] != null) {
-                    return false;
+                    return MoveResult.INVALID;
                 }
             }
         } else if (xChange < 0 && yChange < 0) { //Moving down right
             for (int i = 1; i < absoluteChange; i++) {
                 if (gameBoard[super.getCurrentX() + i][super.getCurrentY() + i] != null) {
-                    return false;
+                    return MoveResult.INVALID;
                 }
             }
         } else if (xChange > 0 && yChange < 0) { //Moving down left
             for (int i = 1; i < absoluteChange; i++) {
                 if (gameBoard[super.getCurrentX() - i][super.getCurrentY() + i] != null) {
-                    return false;
+                    return MoveResult.INVALID;
                 }
             }
         } else { //Moving right up
             for (int i = 1; i < absoluteChange; i++) {
                 if (gameBoard[super.getCurrentX() + i][super.getCurrentY() - i] != null) {
-                    return false;
+                    return MoveResult.INVALID;
                 }
             }
         }
@@ -66,7 +67,7 @@ public class Bishop extends Piece{
 
         if (gameBoard[destinationX][destinationY] != null) { // Capturing piece
             if (gameBoard[destinationX][destinationY].getColor().equals(super.getColor())) { //Trying to capture same team
-                return false;
+                return MoveResult.INVALID;
             } else {
                 if (!checkingStalemateOrCheckmate) {
                     super.getCaptured(destinationX, destinationY); // Capture the piece
@@ -79,7 +80,7 @@ public class Bishop extends Piece{
         Board.setGameBoard(gameBoard);
         if (super.getSameColorKing(super.getColor()).inInCheck()) {
             Board.setGameBoard(originalBoard);
-            return false;
+            return MoveResult.INVALID;
         }
         if (!checkingStalemateOrCheckmate) {
             super.setCurrentX(destinationX);
@@ -87,6 +88,6 @@ public class Bishop extends Piece{
         } else {
             Board.setGameBoard(originalBoard);
         }
-        return true;
+        return MoveResult.NORMAL;
     }
 }

@@ -22,7 +22,8 @@ public class Pawn extends Piece{
        return super.getName();
     }
 
-    public int isMoveValid(int destinationX, int destinationY) {
+    @Override
+    public MoveResult isMoveValid(int destinationX, int destinationY) {
         gameBoard = Board.getGameBoard();
 
         Piece [][] originalBoard = new Piece[8][8];
@@ -38,16 +39,16 @@ public class Pawn extends Piece{
         boolean checkingStalemateOrCheckmate = Board.isCheckingStalemateOrCheckmate();
 
         if (destinationX < 0 || destinationX > 8 || destinationY < 0 || destinationY > 8) { // Piece moved out of board
-            return -1;
+            return MoveResult.INVALID;
         }
 
         if (super.getColor().equals("Black")) {
             if (yChange > 0) {
-                return -1;
+                return MoveResult.INVALID;
             }
         } else {
             if (yChange < 0) {
-                return -1;
+                return MoveResult.INVALID;
             }
         }
 
@@ -55,43 +56,43 @@ public class Pawn extends Piece{
 
         if (xChange != 0) { //Trying to capture the piece
             if (Math.abs(xChange) != 1 || Math.abs(yChange) != 1) {
-                return -1;
+                return MoveResult.INVALID;
             }
             if (gameBoard[destinationX][destinationY] == null) { // This is enpassant case
                 if (gameBoard[destinationX][super.getCurrentY()] instanceof Pawn &&
                     !gameBoard[destinationX][super.getCurrentY()].getColor().equals(super.getColor())) { // if the piece to enpassant is pawn
                     if (!((Pawn)(gameBoard[destinationX][super.getCurrentY()])).isMoveTwiceLastTurn()) {
-                       return -1;
+                        return MoveResult.INVALID;
                     }
                     tryingToEnPassant = true;
                 } else {
-                    return -1;
+                    return MoveResult.INVALID;
                 }
             }
         } else if (Math.abs(yChange) > 2) {
-            return -1;
+            return MoveResult.INVALID;
         } else if (Math.abs(yChange) == 2) {
             if (!canMoveTwice) {
-                return -1;
+                return MoveResult.INVALID;
             }
             if (super.getColor().equals("White")){
                 if (gameBoard[super.getCurrentX()][super.getCurrentY() - 1] != null) {
-                    return -1;
+                    return MoveResult.INVALID;
                 }
             } else {
                 if (gameBoard[super.getCurrentX()][super.getCurrentY() + 1] != null) {
-                    return -1;
+                    return MoveResult.INVALID;
                 }
             }
 
 
             if (super.getColor().equals("White")) {
                 if (getCurrentY() != 6) {
-                    return -1;
+                    return MoveResult.INVALID;
                 }
             } else {
                 if (getCurrentY() != 1) {
-                    return -1;
+                    return MoveResult.INVALID;
                 }
             }
 
@@ -110,7 +111,7 @@ public class Pawn extends Piece{
             }
         } else {
             if (gameBoard[destinationX][destinationY] != null) {
-                return -1;
+                return MoveResult.INVALID;
             }
         }
 
@@ -120,7 +121,7 @@ public class Pawn extends Piece{
         Board.setGameBoard(gameBoard);
         if (super.getSameColorKing(super.getColor()).inInCheck()) {
             Board.setGameBoard(originalBoard);
-            return -1;
+            return MoveResult.INVALID;
         }
 
         if (Math.abs(yChange) == 2 && !checkingStalemateOrCheckmate) {
@@ -142,10 +143,10 @@ public class Pawn extends Piece{
         }
 
         if (tryingToEnPassant && !checkingStalemateOrCheckmate) {
-            return 1;
+            return MoveResult.EN_PASSANT;
         }
 
-        return 0;
+        return MoveResult.NORMAL;
     }
 
     public boolean isMoveTwiceLastTurn() {

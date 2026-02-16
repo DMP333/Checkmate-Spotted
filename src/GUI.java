@@ -217,11 +217,14 @@ public class GUI extends JFrame {
                     buttonTryingToMove= null;
                     pieceTryingToMove = null;
                 } else {
-                    if (pieceTryingToMove instanceof Pawn) {
-                        int moveReturnValue = ((Pawn)pieceTryingToMove).isMoveValid(xCoordinate, yCoordinate);
-                        if (moveReturnValue == 0){
+                    MoveResult moveResult = pieceTryingToMove.isMoveValid(xCoordinate, yCoordinate);
+
+                    switch (moveResult) {
+                        case NORMAL:
                             buttonListenerHelper(currentlySelectedButton, currentlySelectedPiece);
-                        } else if (moveReturnValue == 1) {
+                            break;
+
+                        case EN_PASSANT:
                             System.out.println("enpassant");
 
                             // Dealing with original Pawn square
@@ -243,44 +246,9 @@ public class GUI extends JFrame {
                             }
                             buttonTryingToMove = null;
                             pieceTryingToMove = null;
+                            break;
 
-                        } else {
-                            buttonTryingToMove = null;
-                            pieceTryingToMove = null;
-                        }
-                    } else if (pieceTryingToMove instanceof Rook) {
-                        if (((Rook)pieceTryingToMove).isMoveValid(xCoordinate, yCoordinate)){
-                            buttonListenerHelper(currentlySelectedButton, currentlySelectedPiece);
-                        } else {
-                            buttonTryingToMove = null;
-                            pieceTryingToMove = null;
-                        }
-                    } else if (pieceTryingToMove instanceof Bishop) {
-                        if (((Bishop)pieceTryingToMove).isMoveValid(xCoordinate, yCoordinate)){
-                            buttonListenerHelper(currentlySelectedButton, currentlySelectedPiece);
-                        } else {
-                            buttonTryingToMove = null;
-                            pieceTryingToMove = null;
-                        }
-                    } else if (pieceTryingToMove instanceof Knight) {
-                        if (((Knight)pieceTryingToMove).isMoveValid(xCoordinate, yCoordinate)){
-                            buttonListenerHelper(currentlySelectedButton, currentlySelectedPiece);
-                        } else {
-                            buttonTryingToMove = null;
-                            pieceTryingToMove = null;
-                        }
-                    }else if (pieceTryingToMove instanceof Queen) {
-                        if (((Queen)pieceTryingToMove).isMoveValid(xCoordinate, yCoordinate)){
-                            buttonListenerHelper(currentlySelectedButton, currentlySelectedPiece);
-                        } else {
-                            buttonTryingToMove = null;
-                            pieceTryingToMove = null;
-                        }
-                    } else if (pieceTryingToMove instanceof King) {
-                        int moveReturnValue = ((King)pieceTryingToMove).isMoveValid(xCoordinate, yCoordinate);
-                        if (moveReturnValue == 0){
-                            buttonListenerHelper(currentlySelectedButton, currentlySelectedPiece);
-                        } else if (moveReturnValue == 1) {
+                        case CASTLE:
                             System.out.println("Castle");
                             if (xCoordinate == 2) { //Queen Side Castling
                                 // Dealing with original King Square
@@ -321,11 +289,12 @@ public class GUI extends JFrame {
                             }
                             buttonTryingToMove = null;
                             pieceTryingToMove = null;
+                            break;
 
-                        } else {
+                        case INVALID:
                             buttonTryingToMove = null;
                             pieceTryingToMove = null;
-                        }
+                            break;
                     }
                     if (Board.getSameColorKing(currentTurn).inInCheck()) {
                         if (Board.getSameColorKing(currentTurn).isInCheckmate()){

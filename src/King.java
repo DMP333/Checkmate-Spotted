@@ -55,6 +55,10 @@ public class King extends Piece{
         if (!kingMoved) {
             if ((getCurrentY() == 0 || getCurrentY() == 7) && (xChange == 2 || xChange == -2)) {
                 tryingToCastle = true;
+
+                if (this.inInCheck()) {
+                    return MoveResult.INVALID;
+                }
                 if (xChange > 0) {
                     for (int i = super.getCurrentX()+1; i < 7; i++) {
                         if (gameBoard[i][getCurrentY()] != null) {
@@ -95,7 +99,7 @@ public class King extends Piece{
                     }
 
                 } else {
-                    for (int i = super.getCurrentX()-1; i > 1; i--) {
+                    for (int i = super.getCurrentX()-1; i >= 1; i--) {
                         if (gameBoard[i][getCurrentY()] != null) {
                             return MoveResult.INVALID;
                         } else {
@@ -122,7 +126,7 @@ public class King extends Piece{
                             return MoveResult.INVALID;
                         } else {
                             gameBoard[2][getCurrentY()] = this;
-                            gameBoard[3][getCurrentY()] = gameBoard[7][getCurrentY()];
+                            gameBoard[3][getCurrentY()] = gameBoard[0][getCurrentY()];
                             gameBoard[0][getCurrentY()] = null;
                             gameBoard[4][getCurrentY()] = null;
                             ((Rook) (gameBoard[3][getCurrentY()])).movedFromOriginalPosition = true;

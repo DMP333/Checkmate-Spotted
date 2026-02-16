@@ -190,6 +190,31 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
+
+        }
+
+        private void buttonListenerHelper(JButton currentlySelectedButton, Piece currentlySelectedPiece) {
+            Board.emptyButton((buttonTryingToMove.getX() - 100) / 100 + 1, (buttonTryingToMove.getY() - 100) / 100 + 1);
+
+            buttonTryingToMove.setLocation(currentlySelectedButton.getX(), currentlySelectedButton.getY());
+            panel.remove(currentlySelectedButton);
+            (Board.getButtonBoard())[xCoordinate][yCoordinate] = buttonTryingToMove;
+
+            if (Pawn.getPieceToPromote() != null) {
+                promotionScreen(pieceTryingToMove.getColor());
+            }
+
+            if (pieceTryingToMove.getColor().equals("White")) {
+                currentTurn = "Black";
+            } else {
+                currentTurn = "White";
+            }
+            buttonTryingToMove = null;
+            pieceTryingToMove = null;
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
             System.out.println("Square clicked");
             Piece [][] gameBoard = Board.getGameBoard();
             JButton currentlySelectedButton = (JButton) e.getSource();
@@ -317,31 +342,6 @@ public class GUI extends JFrame {
 
             cp.revalidate();
             cp.repaint();
-        }
-
-        private void buttonListenerHelper(JButton currentlySelectedButton, Piece currentlySelectedPiece) {
-            Board.emptyButton((buttonTryingToMove.getX() - 100) / 100 + 1, (buttonTryingToMove.getY() - 100) / 100 + 1);
-
-            buttonTryingToMove.setLocation(currentlySelectedButton.getX(), currentlySelectedButton.getY());
-            panel.remove(currentlySelectedButton);
-            (Board.getButtonBoard())[xCoordinate][yCoordinate] = buttonTryingToMove;
-
-            if (Pawn.getPieceToPromote() != null) {
-                promotionScreen(pieceTryingToMove.getColor());
-            }
-
-            if (pieceTryingToMove.getColor().equals("White")) {
-                currentTurn = "Black";
-            } else {
-                currentTurn = "White";
-            }
-            buttonTryingToMove = null;
-            pieceTryingToMove = null;
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-
         }
 
         @Override

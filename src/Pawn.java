@@ -161,6 +161,10 @@ public class Pawn extends Piece{
         Pawn.pieceToPromote = pieceToPromote;
     }
 
+    public void setMoveTwiceLastTurn(boolean value) {
+        this.moveTwiceLastTurn = value;
+    }
+
     // move method Calls on game control System to check if move is valid
     // check available Square method
     // Capture method: Called by move method

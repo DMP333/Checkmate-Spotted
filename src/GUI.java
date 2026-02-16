@@ -242,6 +242,15 @@ public class GUI extends JFrame {
                     buttonTryingToMove= null;
                     pieceTryingToMove = null;
                 } else {
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) {
+                            if (Board.getGameBoard()[i][j] instanceof Pawn &&
+                                Board.getGameBoard()[i][j].getColor().equals(currentTurn)) {
+                                ((Pawn) Board.getGameBoard()[i][j]).setMoveTwiceLastTurn(false);
+                            }
+                        }
+                    }
+
                     MoveResult moveResult = pieceTryingToMove.isMoveValid(xCoordinate, yCoordinate);
 
                     switch (moveResult) {

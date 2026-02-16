@@ -371,6 +371,41 @@ public class King extends Piece{
                 }
             }
         }
+
+        // Check if any piece can BLOCK (only for sliding pieces - Rook, Bishop, Queen)
+        if (pieceAttacking instanceof Rook || pieceAttacking instanceof Bishop || pieceAttacking instanceof Queen) {
+            int attackX = pieceAttacking.getCurrentX();
+            int attackY = pieceAttacking.getCurrentY();
+            int kingX = getCurrentX();
+            int kingY = getCurrentY();
+
+            // Direction from attacker toward king
+            int dx = Integer.compare(kingX, attackX);  // -1, 0, or 1
+            int dy = Integer.compare(kingY, attackY);
+
+            // Check each square between attacker and king
+            int x = attackX + dx;
+            int y = attackY + dy;
+            while (x != kingX || y != kingY) {
+                // Can any friendly piece move to this blocking square?
+                for (int i = 0; i < 8; i++) {
+                    for (int j = 0; j < 8; j++) {
+                        if (gameBoard[i][j] != null &&
+                            gameBoard[i][j].getColor().equals(super.getColor()) &&
+                            !(gameBoard[i][j] instanceof King)) {
+                            if (gameBoard[i][j].isMoveValid(x, y) != MoveResult.INVALID) {
+                                Board.setGameBoard(originalBoard);
+                                Board.setCheckingStalemateOrCheckmate(false);
+                                return false;  // Can block, not checkmate
+                            }
+                        }
+                    }
+                }
+                x += dx;
+                y += dy;
+            }
+        }
+
         Board.setGameBoard(originalBoard);
         Board.setCheckingStalemateOrCheckmate(false);
         return true;
